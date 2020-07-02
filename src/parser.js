@@ -109,7 +109,7 @@ function getEnclosure(post) {
 			meta_key[0] === 'enclosure' && meta_value[0].trim() !== ''
 		)
 		.map(({ meta_value }) => meta_value[0].split("\n"))
-		.map(([url, length, type]) => ({ url, length, type }))
+		.map(([url, length, type]) => ({ url, length: length ? parseInt(length): null, type }))
 		.shift()
 	;
 }

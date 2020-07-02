@@ -71,8 +71,12 @@ function handleValue(value, depth = 1) {
 	if (Array.isArray(value)) {
 		return value.length === 0 ? "" :
 			"\n" + spacer + "- " + value.map(v => handleValue(v, depth + 1)).join("\n" + spacer + "- ");
-	} else if (typeof value === 'object') {
+	} else if (value && typeof value === 'object') {
 		return "\n" + Object.entries(value).map(([k, v]) => spacer + k + ": " + handleValue(v, depth + 1)).join("\n");
+	} else if (typeof value === 'number') {
+		return value;
+	} else if (!value || value.trim() === "") {
+		return "";
 	} else {
 		return '"' + (value || '').replace(/"/g, '\\"') + '"';
 	}
