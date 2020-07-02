@@ -51,6 +51,7 @@ function collectPosts(data, config) {
 				date: getPostDate(post),
 				categories: getCategories(post),
 				tags: getTags(post),
+				enclosure: getEnclosure(post),
 			},
 			content: translator.getPostContent(post, turndownService, config)
 		}));
@@ -99,7 +100,18 @@ function processCategoryTags(post, domain) {
 	}
 	return post.category
 		.filter(c => c["$"].domain === domain)
-		.map(({ $: c }) => c.nicename);
+		.map(({ _: name, $: c }) => ({ name, slug: c.nicename }));
+}
+
+function getEnclosure(post) {
+	return post.postmeta
+		.filter(({ meta_key, meta_value }) =>
+			meta_key[0] === 'enclosure' && meta_value[0].trim() !== ''
+		)
+		.map(({ meta_value }) => meta_value[0].split("\n"))
+		.map(([url, length, type]) => ({ url, length, type }))
+		.shift()
+	;
 }
 
 function collectAttachedImages(data) {

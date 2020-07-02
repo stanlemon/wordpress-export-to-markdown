@@ -58,13 +58,24 @@ async function loadMarkdownFilePromise(post) {
 	let output = '---\n';
 	Object.entries(post.frontmatter).forEach(pair => {
 		const key = pair[0];
-		const value = Array.isArray(pair[1])
-			? (pair[1].length === 0 ? "" : "\n  - \"" + pair[1].join("\"\n  - \"") + "\"")
-			: '"' + (pair[1] || '').replace(/"/g, '\\"') +'"';
+		const value = handleValue(pair[1]);
 		output += key + ': ' + value + '\n';
 	});
 	output += '---\n\n' + post.content + '\n';
 	return output;
+}
+
+function handleValue(value, depth = 1) {
+	const spacer = Array((depth * 2) + 1).join(" ");
+
+	if (Array.isArray(value)) {
+		return value.length === 0 ? "" :
+			"\n" + spacer + "- " + value.map(v => handleValue(v, depth + 1)).join("\n" + spacer + "- ");
+	} else if (typeof value === 'object') {
+		return "\n" + Object.entries(value).map(([k, v]) => spacer + k + ": " + handleValue(v, depth + 1)).join("\n");
+	} else {
+		return '"' + (value || '').replace(/"/g, '\\"') + '"';
+	}
 }
 
 async function writeImageFilesPromise(posts, config) {
